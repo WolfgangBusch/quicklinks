@@ -5,7 +5,6 @@
  * @package redaxo5
  * @version Juli 2018
  */
-require_once __DIR__.'/lib/class.quicklinks.php';
 #
 # --- remove the configurated data
 rex_config::removeNamespace("quicklinks");
