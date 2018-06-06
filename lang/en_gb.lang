@@ -1,0 +1,7 @@
+# addon:quicklinks
+#   package
+quicklinks              = Quicklinks
+quicklinks_introduction = Introduction
+quicklinks_description  = Description
+quicklinks_example      = Example
+quicklinks_settings     = Configuration
