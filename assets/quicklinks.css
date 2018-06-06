@@ -1,18 +1,19 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*   Stylesheet for Quicklinks   */
+ul.quicklink {
+   margin:0px; padding:0px; list-style-type:none; }
+ul.quicklink li {
+   display:inline; float:left;
+   margin:0px 0px 0px -1px; padding:4px 8px 4px 8px;
+   white-space:nowrap; text-align:center; ;
+   background-color:rgb(204,103, 51);
+   border:solid 1px rgb(255,190, 60); border-radius:0px;
+   color:rgb(255,255,255); }
+ul.quicklink li div.quicklink_popup {
+   position:absolute;
+   margin:0px 0px 0px -8px; padding:4px 0px 4px 0px;
+   text-align:left;
+   background-color:rgb(240,120, 60);
+   border-style:none; }
+ul.quicklink li div.quicklink_popup a {
+   padding:0px 8px 0px 8px; text-decoration:none; font-size:0.8em;
+   color:rgb(255,255,255); }
