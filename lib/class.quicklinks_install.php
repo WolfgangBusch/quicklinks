@@ -8,7 +8,7 @@
 #
 class quicklinks_install {
 #
-function sql_action($sql,$query) {
+public static function sql_action($sql,$query) {
    #   performing an SQL action using setQuery()
    #   including error message if fails
    #   $sql               SQL handle
@@ -22,12 +22,12 @@ function sql_action($sql,$query) {
         }
    if(!empty($error)) echo rex_view::error($error);
    }
-function update_module($my_package,$name,$funin,$funout) {
+public static function update_module($my_package,$name,$funin,$funout) {
    #   Insert or update of a module
    #   $name              Part 1 of the module's name
    #   $my_package        AddOn identifier (= Part 2 of the module's name)
-   #   $funin             function returning the code of the module's input section
-   #   $funout            function returning the code of the module's output section
+   #   $funin             public static function returning the code of the module's input section
+   #   $funout            public static function returning the code of the module's output section
    #   used functions:
    #      self::sql_action($sql,$query)
    #
@@ -53,7 +53,7 @@ function update_module($my_package,$name,$funin,$funout) {
         "VALUES ('".$fullname."','".$input."','".$output."')");
      endif;
    }
-function mod_linklist_in() {
+public static function mod_linklist_in() {
    #   Code of the input section of the article linklist module
    #
    $str='
@@ -64,7 +64,7 @@ function mod_linklist_in() {
 <p>Auswahl der Links: &nbsp; REX_LINKLIST[1 widget=1]</p>';
    return str_replace("\\","\\\\",utf8_encode($str));
    }
-function mod_linklist_out() {
+public static function mod_linklist_out() {
    #   Code of the output section of the article linklist module
    #
    $str='
@@ -96,7 +96,7 @@ if(rex::isBackend()):
 ?>';
    return str_replace("\\","\\\\",utf8_encode($str));
    }
-function mod_ext_linklist_in() {
+public static function mod_ext_linklist_in() {
    #   Code of the input section of the external linklist module
    #
    $str='
@@ -129,7 +129,7 @@ function mod_ext_linklist_in() {
 </table>';
    return str_replace("\\","\\\\",utf8_encode($str));
    }
-function mod_ext_linklist_out() {
+public static function mod_ext_linklist_out() {
    #   Code of the output section of the external linklist module
    #
    $str='

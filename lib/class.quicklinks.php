@@ -8,7 +8,7 @@
 #
 class quicklinks {
 #
-function get_default_data() {
+public static function get_default_data() {
    #   Quicklinks default stylesheet data as associative array:
    #     [width]          width of the Quicklink cell (number of pixels)
    #     [size]           size of the Quicklink link text (number of points)
@@ -30,7 +30,7 @@ function get_default_data() {
       "popup_backgr"=>"rgb(240,120, 60)",
       "popup_text"  =>"rgb(255,255,255)");
    }
-function proof_data($data) {
+public static function proof_data($data) {
    #   proof content and structure of an array that shall be set
    #   as configuration data for the Quicklinks stylesheet
    #   $data            given data
@@ -58,7 +58,7 @@ function proof_data($data) {
    if($empty>=count($defkeys)) return FALSE;
    return TRUE;
    }
-function set_config_data($data) {
+public static function set_config_data($data) {
    #   Set the configuration data for the Quicklinks stylesheet
    #   $data            Data array to be set as configuration data.
    #                    In case of empty data or wrong array structure
@@ -88,7 +88,7 @@ function set_config_data($data) {
       rex_addon::get("quicklinks")->setConfig($key,$da);
       endfor;
    }
-function get_config_data() {
+public static function get_config_data() {
    #   return the configured data for the Quicklinks stylesheet;
    #   if they are not yet set the default data will be return instead
    #   used functions:
@@ -100,7 +100,7 @@ function get_config_data() {
       $data[$keys[$i]]=rex_addon::get("quicklinks")->getConfig($keys[$i]);
    return $data;
    }
-function define_css($data) {
+public static function define_css($data) {
    #   Return a string with the contents of the stylesheets for the Quicklinks
    #   $data             given array of data for the stylesheet
    #   used functions:
@@ -164,7 +164,7 @@ ul.quicklink li div.quicklink_popup {
    #
    return $str;
    }
-function file_css($data) {
+public static function file_css($data) {
    #   Generate the stylesheet file for Quicklinks in the AddOn assets directory
    #   $data             given array of data for the stylesheet
    #   used functions:
@@ -180,7 +180,7 @@ function file_css($data) {
    fwrite($handle,$buffer);
    fclose($handle);
    }
-function read_config_data() {
+public static function read_config_data() {
    #   Read configuration data values for the Quicklinks stylesheet via form.
    #   Empty input values are replaced by already configured values.
    #   The rgb colors may be restricted to integer values between
@@ -248,7 +248,7 @@ function read_config_data() {
       endfor;
    return $data;
    }
-function print_form() {
+public static function print_form() {
    #   Display the form for entering the stylesheet configuration data
    #   containing the actual data and replace the configuration with
    #   the entered data.
@@ -432,7 +432,7 @@ unterschiedlich, und die Breite der aufpoppenden Linkzeilen einer Gruppe kann di
 Gruppenbreite übertreffen, weil sie durch ihren längsten Linktext bestimmt wird.</div>';
    echo utf8_encode($string);
    }
-function xmp_linklists() {
+public static function xmp_linklists() {
    #   Returns the HTML code for displaying an Quicklinks example
    #   containing three groups of artificial links.
    #   For the array structure see get_linklist().
@@ -494,7 +494,7 @@ function xmp_linklists() {
 <div>&nbsp;</div>';
    return $str;
    }
-function get_linklist() {
+public static function get_linklist() {
    #   Returns all groups of quicklinks constructed by a special module
    #   (based on Redaxo linklist variable). They are selected from
    #   table rex_article_slice as an indexed array (numbered from 1).
@@ -527,7 +527,7 @@ function get_linklist() {
       endfor;
    return $links;
    }
-function set_links($slice) {
+public static function set_links($slice) {
    #   Return one group of internal links defined in an article slice
    #   as an indexed array (numbered from 1). Each array element is an
    #   associative array with the following keys:
@@ -559,7 +559,7 @@ function set_links($slice) {
       endfor;
    return $link;
    }
-function get_external_linklist() {
+public static function get_external_linklist() {
    #   Returns all groups of quicklinks constructed by a special module
    #   (based on Redaxo value variables).
    #   They are selected from database table rex_article_slice as an
@@ -590,7 +590,7 @@ function get_external_linklist() {
       $links[$i+1]=self::set_external_links($slic[$i]);
    return $links;
    }
-function set_external_links($slice) {
+public static function set_external_links($slice) {
    #   Return one group of external links defined in an article slice
    #   as an indexed array (numbered from 1). Each array element is an
    #   associative array with the following keys:
@@ -621,7 +621,7 @@ function set_external_links($slice) {
       endfor;
    return $link;
    }
-function get_linklists() {
+public static function get_linklists() {
    #   Returns all groups of quicklinks ordered by the article priority
    #   in the quicklinks category
    #   used functions:
@@ -642,7 +642,7 @@ function get_linklists() {
       endfor;
    return $links;
    }
-function be_show_quicklinks($links) {
+public static function be_show_quicklinks($links) {
    #   returns a html code for printing a group of quicklinks (used in backend)
    #   $links              array of quicklinks belonging to one group
    #                       numbering from 1, each array element is
@@ -675,7 +675,7 @@ function be_show_quicklinks($links) {
    $str=$str."</table>\n";
    return $str;
    }
-function get_quicklinks($links) {
+public static function get_quicklinks($links) {
    #   Return the HTML code of the quicklinks as side-by-side quicklinks groups.
    #   The links of a group pop up when crossing over with the mouse.
    #   $links           Numbered array of defined group of quicklinks
@@ -735,7 +735,7 @@ function get_quicklinks($links) {
    $str=$str."</ul>\n";
    return $str;
    }
-function print_quicklinks() {
+public static function print_quicklinks() {
    #   Display the defined quicklinks groups, side-by-side in a div-container.
    #   The links of a group pop up when crossing over with the mouse.
    #   used functions:
