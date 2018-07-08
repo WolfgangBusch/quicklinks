@@ -83,12 +83,12 @@ if(rex::isBackend()):
        $id=$arr[$i];
        $name=rex_article::get($id)->getName();
        $k=$i+1;
-       $links[$k][group_nr]=$prio;
-       $links[$k][group_name]=$grp;
-       $links[$k][article_id]=$id;
-       $links[$k][url]=rex_getUrl($id);
-       $links[$k][ref]=$name;
-       $links[$k][title]=$name;
+       $links[$k]["group_nr"]=$prio;
+       $links[$k]["group_name"]=$grp;
+       $links[$k]["article_id"]=$id;
+       $links[$k]["url"]=rex_getUrl($id);
+       $links[$k]["ref"]=$name;
+       $links[$k]["title"]=$name;
        endfor;
     echo quicklinks::be_show_quicklinks($links);
     endif;
@@ -155,12 +155,12 @@ if(rex::isBackend()):
     for($i=1;$i<=count($val);$i=$i+1):
        if(empty($val[$i])) break;
        $brr=explode(";",$val[$i]);
-       $links[$i][group_nr]=$prio;
-       $links[$i][group_name]=$grp;
-       $links[$i][article_id]=0;
-       $links[$i][url]=trim($brr[0]);
-       $links[$i][ref]=trim($brr[1]);
-       $links[$i][title]=trim($brr[2]);
+       $links[$i]["group_nr"]=$prio;
+       $links[$i]["group_name"]=$grp;
+       $links[$i]["article_id"]=0;
+       $links[$i]["url"]=trim($brr[0]);
+       $links[$i]["ref"]=trim($brr[1]);
+       $links[$i]["title"]=trim($brr[2]);
        endfor;
     echo quicklinks::be_show_quicklinks($links);
     endif;
