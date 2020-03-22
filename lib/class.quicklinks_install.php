@@ -3,7 +3,7 @@
  * Quicklinks AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Juli 2018
+ * @version März 2020
  */
 #
 class quicklinks_install {
@@ -16,7 +16,7 @@ public static function sql_action($sql,$query) {
    #
    try {
         $sql->setQuery($query);
-        $error="";
+        $error='';
          } catch(rex_sql_exception $e) {
         $error=$e->getMessage();
         }
@@ -36,21 +36,21 @@ public static function update_module($my_package,$name,$funin,$funout) {
    $output=self::$funout();
    #
    # --- Insert/update the module in table rex_module
-   $table="rex_module";
-   $fullname=$name." (".$my_package.")";
+   $table='rex_module';
+   $fullname=$name.' ('.$my_package.')';
    $sql=rex_sql::factory();
-   $query="SELECT * FROM ".$table." WHERE name LIKE '%".$name."%'";
+   $query='SELECT * FROM '.$table.' WHERE name LIKE \'%'.$name.'%\'';
    $mod=$sql->getArray($query);
    if(count($mod[0])>0):
      # --- Module exists: update
-     self::sql_action($sql,"UPDATE ".$table." SET input='".$input."' ".
-        "WHERE id=".$mod[0][id]);
-     self::sql_action($sql,"UPDATE ".$table." SET output='".$output."' ".
-        "WHERE id=".$mod[0][id]);
+     self::sql_action($sql,'UPDATE '.$table.' SET input=\''.$input.'\' '.
+        'WHERE id='.$mod[0][id]);
+     self::sql_action($sql,'UPDATE '.$table.' SET output=\''.$output.'\' '.
+        'WHERE id='.$mod[0][id]);
      else:
      # --- Module does not exist: insert
-     self::sql_action($sql,"INSERT INTO ".$table." (name,input,output) ".
-        "VALUES ('".$fullname."','".$input."','".$output."')");
+     self::sql_action($sql,'INSERT INTO '.$table.' (name,input,output) '.
+        'VALUES (\''.$fullname.'\',\''.$input.'\',\''.$output.'\')');
      endif;
    }
 public static function mod_linklist_in() {
@@ -62,7 +62,7 @@ public static function mod_linklist_in() {
 <input name="REX_INPUT_VALUE[11]" value="REX_VALUE[11]" />
 &nbsp; (darf nicht leer sein)</p>
 <p>Auswahl der Links: &nbsp; REX_LINKLIST[1 widget=1]</p>';
-   return str_replace("\\","\\\\",utf8_encode($str));
+   return str_replace('\\','\\\\',$str);
    }
 public static function mod_linklist_out() {
    #   Code of the output section of the article linklist module
@@ -79,14 +79,17 @@ if(rex::isBackend()):
     # --- show list of links
     $prio=rex_article::getCurrent()->getValue("priority")-1;
     $arr=explode(",",$list);
+    $links=array();
     for($i=0;$i<count($arr);$i=$i+1):
        $id=$arr[$i];
-       $name=rex_article::get($id)->getName();
        $k=$i+1;
        $links[$k]["group_nr"]=$prio;
        $links[$k]["group_name"]=$grp;
        $links[$k]["article_id"]=$id;
        $links[$k]["url"]=rex_getUrl($id);
+       $art=rex_article::get($id);
+       if($art==null) continue;
+       $name=rex_article::get($id)->getName();
        $links[$k]["ref"]=$name;
        $links[$k]["title"]=$name;
        endfor;
@@ -94,7 +97,7 @@ if(rex::isBackend()):
     endif;
   endif;
 ?>';
-   return str_replace("\\","\\\\",utf8_encode($str));
+   return str_replace('\\','\\\\',$str);
    }
 public static function mod_ext_linklist_in() {
    #   Code of the input section of the external linklist module
@@ -105,7 +108,7 @@ public static function mod_ext_linklist_in() {
     <tr><td>Name&nbsp;der&nbsp;Gruppe:&nbsp;&nbsp;</td>
         <td><input name="REX_INPUT_VALUE[11]" value="<?php echo trim(REX_VALUE[11]); ?>" /></td></tr>
     <tr><td colspan="2" style="color:blue;"><br/>
-            F�r jeden Link jeweils mit ";" getrennt eingeben:  <b>URL (inkl. "http://")</b> ; <b>Linktext</b> ; <b>Linktitel (als Tooltip)</b></td></tr>
+            Für jeden Link jeweils mit ";" getrennt eingeben:  <b>URL (inkl. "http://")</b> ; <b>Linktext</b> ; <b>Linktitel (als Tooltip)</b></td></tr>
     <tr><td>Link Nr. 1:</td>
         <td><input style="width:600px;" name="REX_INPUT_VALUE[1]" value="REX_VALUE[1]" /></td></tr>
     <tr><td>Link Nr. 2:</td>
@@ -127,7 +130,7 @@ public static function mod_ext_linklist_in() {
     <tr><td>Link Nr. 10</td>
         <td><input style="width:600px;" name="REX_INPUT_VALUE[10]" value="REX_VALUE[10]" /></td></tr>
 </table>';
-   return str_replace("\\","\\\\",utf8_encode($str));
+   return str_replace('\\','\\\\',$str);
    }
 public static function mod_ext_linklist_out() {
    #   Code of the output section of the external linklist module
@@ -157,7 +160,7 @@ if(rex::isBackend()):
        $brr=explode(";",$val[$i]);
        $links[$i]["group_nr"]=$prio;
        $links[$i]["group_name"]=$grp;
-       $links[$i]["article_id"]=0;
+       $links[$i]["article_id"]="-1";
        $links[$i]["url"]=trim($brr[0]);
        $links[$i]["ref"]=trim($brr[1]);
        $links[$i]["title"]=trim($brr[2]);
@@ -166,7 +169,7 @@ if(rex::isBackend()):
     endif;
   endif;
 ?>';
-   return str_replace("\\","\\\\",utf8_encode($str));
+   return str_replace('\\','\\\\',$str);
    }
 }
 ?>
