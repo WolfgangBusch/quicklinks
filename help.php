@@ -3,19 +3,19 @@
  * Quicklinks AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Juli 2018
+ * @version MÃ¤rz 2020
 */
 $string='
 <div>Dieses AddOn bietet ein System zur Erzeugung und Darstellung kompakter
-Listen von Links. Entsprechende Listen können im Seitentemplate eingebunden
+Listen von Links. Entsprechende Listen kÃ¶nnen im Seitentemplate eingebunden
 werden und so auf jeder Seite den Zugriff auf wichtige Artikel mit nur einem
 einzigen Klick gestatten (&quot;Quicklinks&quot;).</div>
 
-<div><br/>Um den Platzbedarf für die Quicklinks möglichst gering zu halten,
+<div><br/>Um den Platzbedarf fÃ¼r die Quicklinks mÃ¶glichst gering zu halten,
 sind sie in Gruppen nebeneinander angeordnet. Die Linkliste einer Gruppe
-ist zeilenweise angeordnet. Sie poppt erst beim Überfahren mit der Maus auf.
-Dafür stehen entsprechende Javascript-Funktionen zur Verfügung.
+ist zeilenweise angeordnet. Sie poppt erst beim Ãœberfahren mit der Maus auf.
+DafÃ¼r stehen entsprechende Javascript-Funktionen zur VerfÃ¼gung.
 Die Stylesheets zur Darstellung der Quicklinks sind konfigurierbar.</div>
 ';
-echo utf8_encode($string);
+echo $string;
 ?>
