@@ -1,4 +1,9 @@
 # quicklinks
+<h4>Version 2.1.1</h4>
+<ul>
+    <li>Lesen und Setzen der Konfigurationsdaten funktioniert jetzt auch
+        unabhängig von deren Speicherreihenfolge in der Tabelle rex_config.</li>
+</ul>
 <h4>Version 2.1.0</h4>
 <ul>
     <li>Kleinere Korrekturen am Programmcode zur Vermeidung von PHP-Warnungen.</li>
