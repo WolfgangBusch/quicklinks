@@ -40,21 +40,24 @@ public static function proof_data($data) {
    #   used functions:
    #      self::get_default_data()
    #
-   # --- proof the data structure
    $keys=array_keys($data);
    $defdata=self::get_default_data();
    $defkeys=array_keys($defdata);
+   #
+   # --- falsche Key-Anzahl?
    if(count($keys)<>count($defkeys)) return FALSE;
    #
-   $struc=TRUE;
-   for($i=0;$i<count($defkeys);$i=$i+1):
-      if($keys[$i]!=$defkeys[$i]):
-        $struc=FALSE;
-        break;
-        endif;
+   # --- falscher Key-Wert
+   for($i=0;$i<count($keys);$i=$i+1):
+      $ke=$keys[$i];
+      $str=FALSE;
+      for($k=0;$k<count($defkeys);$k=$k+1)
+         if($defkeys[$k]==$ke):
+           $str=TRUE;
+           break;
+           endif;
+      if(!$str) return FALSE;           
       endfor;
-   if(count($keys)!=count($defkeys)) $struc=FALSE;
-   if(!$struc) return FALSE;
    #
    # --- empty content?
    $empty=0;
@@ -72,21 +75,16 @@ public static function set_config_data($data) {
    #      self::get_default_data()
    #      self::proof_data($data)
    #
-   $keys=array_keys($data);
    $defdata=self::get_default_data();
    $defkeys=array_keys($defdata);
    #
    # --- proof the data
-   $correct=self::proof_data($data);
+   $dat=$data;
+   if(!self::proof_data($data)) $dat=$defdata;
    #
    # --- set the configuration data
-   $dat=$data;
-   if(!$correct):
-     $dat=$defdata;
-     $keys=$defkeys;
-     endif;
-   for($i=0;$i<count($keys);$i=$i+1):
-      $key=$keys[$i];
+   for($i=0;$i<count($defkeys);$i=$i+1):
+      $key=$defkeys[$i];
       $da=$dat[$key];
       $ida=intval($da);
       if($ida>0 or strval($da)=='0') $da=$ida;
@@ -221,12 +219,14 @@ public static function read_config_data() {
    #      self::get_default_data()
    #      self::read_zero($key,$confdat)
    #
+   $defdat=self::get_default_data();
+   #
    # --- Return the actually configured data after reset
-   if(!empty($_POST['reset'])) return self::get_default_data();
+   if(!empty($_POST['reset'])) return $defdat;
    #
    # --- Keys for the input data
+   $dkeys=array_keys($defdat);
    $confdat=rex_config::get(QUICKLINKS);
-   $dkeys=array_keys($confdat);
    $keys=array();
    for($i=0;$i<count($dkeys);$i=$i+1):
       $cdat=$confdat[$dkeys[$i]];
