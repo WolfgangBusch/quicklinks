@@ -3,13 +3,13 @@
  * Quicklinks AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version März 2020
+ * @version Dezember 2021
  */
 #
 # --- Beschreibung
-$string='
+echo '
 <div><b>Erzeugung der Quicklinks:</b></div>
-<div style="padding-left:20px;">
+<div class="ql_indent">
 Das AddOn stellt zwei Module zur Verfügung, mit denen jeweils eine Gruppe
 von Linkzeilen (&quot;Quicklinks-Gruppe&quot;) erzeugt werden kann. Der
 eine Modul definiert eine Gruppe von Links auf Redaxo-Artikel (interne
@@ -22,7 +22,7 @@ Kategorie ein. Die Reihenfolge der Gruppen (von links nach rechts)
 ergibt sich aus der Reihenfolge der Artikel in der Kategorie.</div>
 
 <div><br/><b>Anzeige der Quicklinks:</b></div>
-<div style="padding-left:20px;">
+<div class="ql_indent">
 Die Quicklinks-Gruppen werden durch den Aufruf der PHP-Funktion
 <code>quicklinks::print_quicklinks()</code> angezeigt. Dieser
 Aufruf erfolgt sinnvollerweise im Seitentemplate.</div>
@@ -35,5 +35,4 @@ Aufruf erfolgt sinnvollerweise im Seitentemplate.</div>
     <li>Hintergrundfarbe und Textfarbe der Linkzeilen</li>
 </ul>
 ';
-echo $string;
 ?>
