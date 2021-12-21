@@ -3,13 +3,38 @@
  * Quicklinks AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version März 2020
+ * @version Dezember 2021
  */
 #
-define ('QUICKLINKS',$this->getPackageId());
+define ('QUICKLINKS'  ,$this->getPackageId());
+define ('QUICK_MOBILE',35);   // Smartphone display size 'max-width:...em'
 #
 class quicklinks {
 #
+#----------------------------------------- Inhaltsuebersicht
+#   Konfiguration
+#      get_default_data()
+#      proof_data($data)
+#      set_config_data($data)
+#      define_css($data)
+#      file_css($data)
+#      read_zero($key,$confdat)
+#      read_config_data()
+#      print_form()
+#      xmp_linklists()
+#   Module
+#      get_internal_links($slice)
+#      show_internal_quicklinks($grp,$list)
+#      get_external_links($slice)
+#      show_external_quicklinks($grp,$val)
+#   Frontend
+#      print_quicklinks()
+#      get_linklists()
+#      get_internal_linklists()
+#      get_external_linklists()
+#      get_quicklinks($grplinks)
+#
+#----------------------------------------- Konfiguration
 public static function get_default_data() {
    #   Returns the Quicklinks default stylesheet data as an associative array
    #   with theese keys and values:
@@ -27,7 +52,7 @@ public static function get_default_data() {
       'width'       =>0,
       'size'        =>0,
       'radius'      =>0,
-      'quick_backgr'=>'rgb(204,103, 51)',
+      'quick_backgr'=>'rgb(204,102, 51)',
       'quick_border'=>'rgb(255,190, 60)',
       'quick_text'  =>'rgb(255,255,255)',
       'popup_backgr'=>'rgb(240,120, 60)',
@@ -92,7 +117,7 @@ public static function set_config_data($data) {
       endfor;
    }
 public static function define_css($data) {
-   #   Returns a string with the contents of the stylesheets for the Quicklinks.
+   #   Returns a string with the contents of the stylesheet for the Quicklinks.
    #   $data            given array of data for the stylesheet
    #   used functions:
    #      self::proof_data()
@@ -105,67 +130,75 @@ public static function define_css($data) {
    $dat=$data;
    if(!$correct) $dat=self::get_default_data();
    $keys=array_keys($dat);
-   $width =$dat[$keys[0]];
-   $size  =$dat[$keys[1]];
-   $borrad=$dat[$keys[2]];
-   $q_bg_c=$dat[$keys[3]];
-   $q_b_c =$dat[$keys[4]];
-   $q_t_c =$dat[$keys[5]];
-   $p_bg_c=$dat[$keys[6]];
-   $p_t_c =$dat[$keys[7]];
-   $quisize='';
-   $popsize='font-size:0.8em';
+   $width  =$dat[$keys[0]];
+   $size   =$dat[$keys[1]];
+   $borrad =$dat[$keys[2]];
+   $qbgcol =$dat[$keys[3]];
+   $qborcol=$dat[$keys[4]];
+   $qtxtcol=$dat[$keys[5]];
+   $pbgcol =$dat[$keys[6]];
+   $ptxtcol=$dat[$keys[7]];
    if($size>0):
-     $quisize='font-size:'.$size.'pt';
-     $popsize='font-size:'.intval(0.8*$size).'pt';
+     $lifsize=$size.'px';
+     $popsize=intval(0.8*$size).'px';
+     else:
+     $lifsize='inherit';
+     $popsize='smaller';
      endif;
-   $pwidth=0;
-   $padli='4px 8px 4px  8px';
-   $mapop='0px 0px 0px -8px';
+   $lipad1='4px 0px 4px 0px';
+   $lipad0='4px 8px 4px 8px';
+   $mapop1='1px 0px 0px  0px';
+   $mapop0='1px 0px 0px -8px';
    if($width>0):
-     $pwidth=$width-2;
-     $padli='4px 0px 4px 0px';
-     $mapop='0px 0px 0px 0px';
+     $liwidth =$width.'px';
+     $divwidth=intval($width-2).'px';
+     $lipad=$lipad1;
+     $mapop=$mapop1;
+     else:
+     $liwidth ='auto';
+     $divwidth='auto';
+     $lipad=$lipad0;
+     $mapop=$mapop0;
      endif;
    #
    # --- generate the stylesheet instructions
    $str=
 '/*   Stylesheet for Quicklinks   */
 ul.quicklink {
-   margin:0px; padding:0px; list-style-type:none; }
+    margin:0px; padding:0px; list-style-type:none; }
 ul.quicklink li {
-   float:left; box-sizing:border-box;
-   margin:0px 0px 0px -1px; padding:'.$padli.';
-   white-space:nowrap; text-align:center; '.$quisize.';
-   background-color:'.$q_bg_c.'; color:'.$q_t_c.';
-   border:solid 1px '.$q_b_c.'; border-radius:'.$borrad.'px; }
+    width:'.$liwidth.'; float:left; box-sizing:border-box;
+    margin:0px 0px 0px -1px; padding:'.$lipad.';
+    white-space:nowrap; text-align:center; font-size:'.$lifsize.';
+    background-color:'.$qbgcol.'; color:'.$qtxtcol.';
+    border:solid 1px '.$qborcol.'; border-radius:'.$borrad.'px; }
 ul.quicklink li div.quicklink_popup {
-   position:absolute; margin:'.$mapop.'; padding:4px 0px 4px 0px;
-   text-align:left; background-color:'.$p_bg_c.';
-   border-style:none; overflow:hidden; visibility:hidden; }
+    width:'.$divwidth.'; position:absolute;
+    margin:'.$mapop.'; padding:4px 0px 4px 0px;
+    text-align:left; background-color:'.$pbgcol.';
+    border-style:none; overflow:hidden; visibility:hidden; }
 ul.quicklink li div.quicklink_popup a {
-   padding:0px 4px 0px 4px; text-decoration:none;
-   '.$popsize.'; color:'.$p_t_c.'; }';
-   #
-   # --- addition in case of fixed width
-   if($width>0) $str=$str.'
-/*   */
-/*   addition in case of fixed width   */
-ul.quicklink li { width:'.$width.'px; }
-ul.quicklink li div.quicklink_popup { width:'.$pwidth.'px; }';
+    padding:0px 4px 0px 4px; text-decoration:none;
+    font-size:'.$popsize.'; color:'.$ptxtcol.'; }
+@media screen and (max-width:'.QUICK_MOBILE.'em) {
+    ul.quicklink li { width:auto; padding:'.$lipad0.'; }
+    ul.quicklink li div.quicklink_popup { margin:'.$mapop0.'; }
+    }';
    #
    # --- for backend functions
    $str=$str.'
-/*   */
+
 /*   for backend functions   */
-table.ql_inherit { background-color:inherit; }
+table.ql_inherit   { background-color:inherit; }
 td.ql_indent, div.ql_indent { padding-left:20px; }
-td.ql_indent_r  { padding-left:20px; text-align:right; }
-td.ql_nowrap    { padding-left:10px; white-space:nowrap; }
-td.ql_smaller, span.ql_smaller { padding-left:10px; white-space:nowrap; font-size:smaller; }
-input.ql_show   { width:140px; }
-input.ql_show_h { width:140px; height:1.5em; }
-input.ql_width  { width:60px; text-align:right; }';
+td.ql_right, input.ql_right { text-align:right; }
+td.ql_nowrap       { white-space:nowrap; }
+td.ql_center       { text-align:center; }
+td.ql_smaller, span.ql_smaller { width:80px; font-size:smaller; }
+input.ql_width     { width:60px; }
+input.ql_height    { height:1.5em; }
+input.ql_extwidth  { width:600px; }
+p.ql_error         { color:red; }';
    #
    return $str;
    }
@@ -274,7 +307,6 @@ public static function print_form() {
    #   Displays the form for entering the stylesheet configuration data containing
    #   the actual data and replaces the configuration with the entered data.
    #   used functions:
-   #      self::get_default_data()
    #      self::read_config_data()
    #      self::set_config_data($data)
    #      self::file_css($data)
@@ -294,9 +326,18 @@ public static function print_form() {
    for($i=0;$i<count($keys);$i=$i+1):
       $key=$keys[$i];
       $val=$data[$key];
+      if($i==0):   // box width = defined group width
+        $boxwidth=$val;
+        if($boxwidth<=0) $boxwidth=150;
+        endif;
+      if($i==1):   // take the defined font size
+        $fontsize=$val;
+        $fs=$val.'px';
+        if($val<=0) $fs='inherit';          
+        endif;
       $datin[$i]=$val;
       if(substr($val,0,4)!='rgb('):
-        $str[$i]='class="form-control ql_width" name="'.$key.'" value="'.$val.'"';
+        $str[$i]='class="form-control ql_right ql_width" name="'.$key.'" value="'.$val.'"';
         else:
         #   $val='rgb(rrr,gg,b)';
         $arr=explode(',',$val);
@@ -307,9 +348,9 @@ public static function print_form() {
         $kg=$key.'_green';
         $kb=$key.'_blue';
         $str[$i]=array(
-           'red'=>   'class="form-control ql_width" name="'.$kr.'" value="'.$red.'"',
-           'green'=> 'class="form-control ql_width" name="'.$kg.'" value="'.$green.'"',
-           'blue'=>  'class="form-control ql_width" name="'.$kb.'" value="'.$blue.'"');
+           'red'=>   'class="form-control ql_right ql_width" name="'.$kr.'" value="'.$red.'"',
+           'green'=> 'class="form-control ql_right ql_width" name="'.$kg.'" value="'.$green.'"',
+           'blue'=>  'class="form-control ql_right ql_width" name="'.$kb.'" value="'.$blue.'"');
         endif;
       endfor;
    #
@@ -320,81 +361,104 @@ public static function print_form() {
    #
    # --- Width and font size
    $string=$string.'
-    <tr><td class="ql_nowrap">Breite einer Quicklinks-Gruppe <b>[*]</b></td>
-        <td class="ql_smaller"><input '.$str[0].' />
-        <td colspan="2" class="ql_smaller">px &nbsp;(Anzahl Pixel,</td>
-        <td class="ql_smaller">0: keine feste Breite, &quot;auto&quot;)</td></tr>
-    <tr><td class="ql_nowrap">Schriftgröße der Quicklinks-Texte</td>
-        <td class="ql_smaller"><input '.$str[1].' />
-        <td colspan="2" class="ql_smaller">pt &nbsp; (Anzahl Punkte,</td>
-        <td class="ql_smaller">0: keine feste Größe, &quot;auto&quot;)</td></tr>
-    <tr><td class="ql_nowrap">Eckenradius einer Quicklinks-Gruppe</td>
-        <td class="ql_smaller"><input '.$str[2].' />
-        <td colspan="2" class="ql_smaller">px &nbsp; (Anzahl Pixel,</td>
-        <td class="ql_smaller">0: Ecken nicht abgerundet)</td></tr>';
+    <tr><td class="ql_indent ql_nowrap">
+            Breite einer Quicklinks-Gruppe <b>[*]</b></td>
+        <td class="ql_indent ql_smaller">
+            <input '.$str[0].' />
+        <td colspan="3" class="ql_indent ql_smaller">
+            px &nbsp;(Anzahl Pixel) &nbsp;
+            0:&nbsp; keine feste Breite, &quot;auto&quot;</td></tr>
+    <tr><td class="ql_indent ql_nowrap">
+            Schriftgröße der Quicklinks-Texte</td>
+        <td class="ql_indent ql_smaller">
+            <input '.$str[1].' />
+        <td colspan="3" class="ql_indent ql_smaller">
+            px &nbsp; (Anzahl Pixel) &nbsp;
+            0:&nbsp; keine feste Größe, &quot;auto&quot;</td></tr>
+    <tr><td class="ql_indent ql_nowrap">
+            Eckenradius einer Quicklinks-Gruppe</td>
+        <td class="ql_indent ql_smaller">
+            <input '.$str[2].' />
+        <td colspan="3" class="ql_indent ql_smaller">
+            px &nbsp; (Anzahl Pixel) &nbsp;
+            0:&nbsp; Ecken nicht abgerundet</td></tr>';
    #
    # --- Headline colors
    $string=$string.'
-    <tr><td class="ql_smaller ql_indent_r">Farben (RGB-Werte)</td>
-        <td class="ql_smaller"> &nbsp; &nbsp; rot</td>
-        <td class="ql_smaller">&nbsp; &nbsp;grün</td>
-        <td class="ql_smaller">&nbsp; &nbsp;blau</td>
-        <td class="ql_smaller">&nbsp; &nbsp; &nbsp; &nbsp;Darstellung</td></tr>';
+    <tr><td class="ql_indent ql_smaller ql_right ql_indent">Farben (RGB-Werte)</td>
+        <td class="ql_indent ql_smaller ql_center">rot</td>
+        <td class="ql_indent ql_smaller ql_center">grün</td>
+        <td class="ql_indent ql_smaller ql_center">blau</td>
+        <td class="ql_indent ql_smaller ql_center">Darstellung</td></tr>';
    #
    # --- Quicklinks background color
    $string=$string.'
-    <tr><td class="ql_nowrap">Quicklinks-Hintergrundfarbe</td>
-        <td class="ql_nowrap"><input '.$str[3]['red'].' /></td>
-        <td class="ql_nowrap"><input '.$str[3]['green'].' /></td>
-        <td class="ql_nowrap"><input '.$str[3]['blue'].' /></td>
-        <td class="ql_nowrap">
-            <input class="form-control ql_show_h" type="text" value=""
-                   style="border:solid 2px '.$datin[3].';
+    <tr><td class="ql_indent ql_nowrap">Quicklinks-Hintergrundfarbe</td>
+        <td class="ql_indent ql_nowrap"><input '.$str[3]['red'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[3]['green'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[3]['blue'].' /></td>
+        <td class="ql_indent ql_nowrap">
+            <input class="form-control ql_height" type="text" value=""
+                   style="width:'.$boxwidth.'px;
+                          border:solid 2px '.$datin[3].';
                           background-color:'.$datin[3].';" /></td></tr>';
    #
    # --- Quicklinks border color
    $string=$string.'
-    <tr><td class="ql_nowrap">Quicklinks-Randfarbe <span class="ql_smaller">(feste Randdicke 1px)</span></td>
-        <td class="ql_nowrap"><input '.$str[4]['red'].' /></td>
-        <td class="ql_nowrap"><input '.$str[4]['green'].' /></td>
-        <td class="ql_nowrap"><input '.$str[4]['blue'].' /></td>
-        <td class="ql_nowrap">
-            <input class="form-control ql_show_h" type="text" value=""
-                   style="border:solid 2px '.$datin[4].'; border-radius:'.$datin[2].'px;" /></td></tr>';
+    <tr><td class="ql_indent ql_nowrap">
+            Quicklinks-Randfarbe <span class="ql_indent ql_smaller">(feste Randdicke 1px)</span></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[4]['red'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[4]['green'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[4]['blue'].' /></td>
+        <td class="ql_indent ql_nowrap">
+            <input class="form-control ql_height" type="text" value=""
+                   style="width:'.$boxwidth.'px;
+                          border:solid 2px '.$datin[4].';
+                          border-radius:'.$datin[2].'px;" /></td></tr>';
    #
    # --- Quicklinks text color
    $string=$string.'
-    <tr><td class="ql_nowrap">Quicklinks-Textfarbe</td>
-        <td class="ql_nowrap"><input '.$str[5]['red'].' /></td>
-        <td class="ql_nowrap"><input '.$str[5]['green'].' /></td>
-        <td class="ql_nowrap"><input '.$str[5]['blue'].' /></td>
-        <td class="ql_nowrap">
-            <input class="form-control ql_show" type="text" value=" Quicklink-Text "
-                   style="text-align:center;
-                          border:solid 2px '.$datin[4].'; border-radius:'.$datin[2].'px;
+    <tr><td class="ql_indent ql_nowrap">Quicklinks-Textfarbe</td>
+        <td class="ql_indent ql_nowrap"><input '.$str[5]['red'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[5]['green'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[5]['blue'].' /></td>
+        <td class="ql_indent ql_nowrap">
+            <input class="form-control" type="text" value="Quicklink"
+                   style="width:'.$boxwidth.'px;
+                          text-align:center;
+                          font-size:'.$fs.';
+                          border:solid 2px '.$datin[4].';
+                          border-radius:'.$datin[2].'px;
                           background-color:'.$datin[3].';
                           color:'.$datin[5].';" /></td></tr>';
    #
    # --- PopUps background color
    $string=$string.'
-    <tr><td class="ql_nowrap">PopUps-Hintergrundfarbe</td>
-        <td class="ql_nowrap"><input '.$str[6]['red'].' /></td>
-        <td class="ql_nowrap"><input '.$str[6]['green'].' /></td>
-        <td class="ql_nowrap"><input '.$str[6]['blue'].' /></td>
-        <td class="ql_nowrap">
-            <input class="form-control ql_show_h" type="text" value=""
-                   style="border:solid 2px '.$datin[6].';
+    <tr><td class="ql_indent ql_nowrap">PopUps-Hintergrundfarbe</td>
+        <td class="ql_indent ql_nowrap"><input '.$str[6]['red'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[6]['green'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[6]['blue'].' /></td>
+        <td class="ql_indent ql_nowrap">
+            <input class="form-control ql_height" type="text" value=""
+                   style="width:'.$boxwidth.'px;
+                          border:solid 2px '.$datin[6].';
                           background-color:'.$datin[6].';" /></td></tr>';
    #
    # --- PopUps text color
+   if($fontsize>0):
+     $sfs=intval(0.8*$fontsize).'px';
+     else:
+     $sfs='smaller';
+     endif;
    $string=$string.'
-    <tr><td class="ql_nowrap">PopUps-Textfarbe</td>
-        <td class="ql_nowrap"><input '.$str[7]['red'].' /></td>
-        <td class="ql_nowrap"><input '.$str[7]['green'].' /></td>
-        <td class="ql_nowrap"><input '.$str[7]['blue'].' /></td>
-        <td class="ql_nowrap">
-            <input class="form-control ql_show" type="text" value=" PopUp-Text "
-                   style="font-size:0.8em;
+    <tr><td class="ql_indent ql_nowrap">PopUps-Textfarbe</td>
+        <td class="ql_indent ql_nowrap"><input '.$str[7]['red'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[7]['green'].' /></td>
+        <td class="ql_indent ql_nowrap"><input '.$str[7]['blue'].' /></td>
+        <td class="ql_indent ql_nowrap">
+            <input class="form-control" type="text" value="PopUp"
+                   style="width:'.$boxwidth.'px;
+                          font-size:'.$sfs.';
                           border:solid 2px '.$datin[6].';
                           background-color:'.$datin[6].';
                           color:'.$datin[7].';" /></td></tr>';
@@ -402,16 +466,17 @@ public static function print_form() {
    # --- Buttons
    $restit='auf Defaultwerte zurücksetzen und speichern';
    $string=$string.'
-    <tr><td class="ql_nowrap"><br/>
+    <tr><td class="ql_indent ql_nowrap"><br/>
             <button class="btn btn-save" type="submit" name="sendit" value="sendit"
                     title=" speichern "> speichern </button></td>
-        <td colspan="4" class="ql_smaller"><br/>
+        <td colspan="4" class="ql_indent ql_smaller"><br/>
             <button class="btn btn-update" type="submit" name="reset" value="reset"
                     title="'.$restit.'"> '.$restit.' </button></td></tr>';
    #
    # --- Notice on width
    $string=$string.'
-    <tr><td colspan="5" class="ql_nowrap"><br/><b>[*] Zur Breite der Quicklinks-Gruppen:</b></td></tr>
+    <tr><td colspan="5" class="ql_indent ql_nowrap"><br/>
+            <b>[*] Zur Breite der Quicklinks-Gruppen:</b></td></tr>
     <tr><td colspan="5" class="ql_indent">
             <div class="ql_indent">Ein <u>Parameterwert&gt;0 definiert
             eine einheitliche feste Breite</u> der Gruppen samt allen darunter
@@ -487,44 +552,14 @@ public static function xmp_linklists() {
 Quicklinks-Zellen '.$width.' Pixel breit, '.$zus.'<br/>&nbsp;</div>';
    #
    $str=$str.self::get_quicklinks($links).'
-<div>&nbsp;</div>
-<div>&nbsp;</div>';
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>';
    return $str;
    }
-public static function get_internal_linklists() {
-   #   Returns all groups of Quicklinks constructed by a special module
-   #   (based on Redaxo linklist variable). They are selected from
-   #   table 'rex_article_slice' as a numbered array (numbering starting at 1).
-   #   Each group is represented as a numbered array (numbering starting at 1).
-   #   Each Quicklink consists of an associative array with these keys and values:
-   #     ['group_nr']   group number according to slice priority
-   #                    number in the Quicklinks article
-   #     ['group_name'] group identifier
-   #     ['article_id'] Id of an Redaxo article
-   #     ['url']        URL of an external link
-   #     ['ref']        link text of an external link
-   #     ['title']      title text of an external link
-   #   used functions:
-   #      self::set_internal_links($slice)
-   #
-   $sql=rex_sql::factory();
-   #
-   # --- Select the link list based rex_module
-   $query='SELECT * FROM rex_module WHERE output LIKE \'%REX_LINKLIST[1]%quicklinks%\'';
-   $mod=$sql->getArray($query);
-   $mod_id=$mod[0]['id'];
-   #
-   # --- Select the Quicklinks from rex_article_slice
-   $query='SELECT * FROM rex_article_slice WHERE module_id='.$mod_id.' ORDER BY createdate ASC';
-   $slic=$sql->getArray($query);
-   $links=array();
-   for($i=0;$i<count($slic);$i=$i+1):
-      $grplink=self::set_internal_links($slic[$i]);
-      $links[$i+1]=$grplink;
-      endfor;
-   return $links;
-   }
-public static function set_internal_links($slice) {
+#
+#----------------------------------------- Module
+public static function get_internal_links($slice) {
    #   Returns one group of internal Quicklinks defined in an article slice.
    #   The group is represented as a numbered array (numbering starting at 1).
    #   Each Quicklink consists of an associative array with these keys and values:
@@ -535,13 +570,13 @@ public static function set_internal_links($slice) {
    #     ['url']        article URL (via rex_getUrl())
    #     ['ref']        article name as link text
    #     ['title']      article name as link text
-   #   $slice           given slice (as object)
+   #   $slice           given slice (object)
    #
-   $art_id=$slice['article_id'];
+   $art_id=$slice->getArticleId();
    $prio=rex_article::get($art_id)->getValue('priority');
    $prio=$prio-1;  // slices start from priority 2
-   $grp=$slice['value11'];
-   $linklist=$slice['linklist1'];
+   $grp=$slice->getValue(11);
+   $linklist=$slice->getLinkList(1);
    $grplink=array();
    if(empty($linklist)) return $grplink;
    #
@@ -558,38 +593,40 @@ public static function set_internal_links($slice) {
       endfor;
    return $grplink;
    }
-public static function get_external_linklists() {
-   #   Returns all groups of external Quicklinks constructed by a special
-   #   module (based on Redaxo value variables). They are selected from database
-   #   table 'rex_article_slice'. Each group is represented as a numbered array
-   #   of Quicklinks (numbering starting at 1). Each Quicklink consists of an
-   #   associative array with these keys and values:
-   #     ['group_nr']   group number according to slice priority
-   #                    number in the Quicklinks article
-   #     ['group_name'] group identifier
-   #     ['article_id'] ='-1'
-   #     ['url']        URL of an external link
-   #     ['ref']        link text of an external link
-   #     ['title']      title text of an external link
-   #   used functions:
-   #      self::set_external_links($slice)
+public static function show_internal_quicklinks($grp,$list) {
+   #   Returns a html code for printing a group of internal Quicklinks
+   #   (used in backend).
+   #   $grp             Quicklinks group name
+   #   $list            comma separated list of article Ids that belong
+   #                    to the entered Quicklinks group
    #
-   $sql=rex_sql::factory();
+   if(empty($grp)) return '
+<p class="ql_error">Gruppenname ist leer!</p>';
    #
-   # --- Select the value based rex_module
-   $query='SELECT * FROM rex_module WHERE output LIKE \'%REX_VALUE[10]%quicklinks%\'';
-   $mod=$sql->getArray($query);
-   $mod_id=$mod[0]['id'];
-   #
-   # --- Select the Quicklinks from rex_article_slice
-   $query='SELECT * FROM rex_article_slice WHERE module_id='.$mod_id.' ORDER BY createdate ASC';
-   $slic=$sql->getArray($query);
-   $links=array();
-   for($i=0;$i<count($slic);$i=$i+1)
-      $links[$i+1]=self::set_external_links($slic[$i]);
-   return $links;
+   $gnr=rex_article::getCurrent()->getValue('priority')-1;
+   $str='<div>Quicklinks-Gruppe '.$gnr.' &nbsp; <b>\''.trim($grp).'\'</b></div>
+<table>';
+   $arr=explode(',',$list);
+   for($i=0;$i<count($arr);$i=$i+1):
+      $id =$arr[$i];
+      $url=rex_getUrl($id);
+      $art=rex_article::get($id);
+      if($art==null) continue;
+      $ref=rex_article::get($id)->getName();
+      $tit=$ref;
+      $str=$str. '
+    <tr><td class="ql_indent">
+            <a href="'.$url.'" title="'.$tit.'" target="_blank">'.$ref.'</a></td>
+        <td class="ql_indent">
+            <small>(Artikel-Id</small></td>
+        <td align="right">
+            <small> &nbsp; '.$id.')</small></td></tr>';
+      endfor;
+   $str=$str.'
+</table>';
+   return $str;
    }
-public static function set_external_links($slice) {
+public static function get_external_links($slice) {
    #   Returns one group of external Quicklinks defined in an article slice as a
    #   numbered array (numbering starting at 1, max. 10 elements). Each Quicklink
    #   consists of an associative array with these keys and values:
@@ -600,17 +637,16 @@ public static function set_external_links($slice) {
    #     ['url']        URL of an external link
    #     ['ref']        link text of an external link
    #     ['title']      title text of an external link
-   #   $slice           given slice (as object)
+   #   $slice           given slice (object)
    #
-   $art_id=$slice['article_id'];
+   $art_id=$slice->getArticleId();
    $prio=rex_article::get($art_id)->getValue('priority');
    $prio=$prio-1;  // slices start from priority 2
-   $grp=$slice['value11'];
+   $grp=$slice->getValue(11);
    $grplink=array();
    for($k=1;$k<=10;$k=$k+1):
-      $value='value'.strval($k);
-      $val=$slice[$value];
-      if(empty($val)) break;
+      $val=$slice->getValue($k);
+      if(empty($val)) continue;
       $arr=explode(';',$val);
       $grplink[$k]['group_nr']=$prio;
       $grplink[$k]['group_name']=$grp;
@@ -620,6 +656,47 @@ public static function set_external_links($slice) {
       $grplink[$k]['title']=trim($arr[2]);
       endfor;
    return $grplink;
+   }
+public static function show_external_quicklinks($grp,$val) {
+   #   Returns a html code for printing a group of external Quicklinks
+   #   (used in backend).
+   #   $grp             Quicklinks group name
+   #   $val             numbered array of links (numbering starting at 1)
+   #                    that belong to the entered Quicklinks group
+   #
+   if(empty($grp)) return '
+<p class="ql_error">Gruppenname ist leer!</p>';
+   #
+   $gnr=rex_article::getCurrent()->getValue('priority')-1;
+   $str='<div>Quicklinks-Gruppe '.$gnr.' &nbsp; <b>\''.trim($grp).'\'</b></div>
+<table>';
+   for($i=1;$i<=count($val);$i=$i+1):
+      if(empty($val[$i])) break;
+      $brr=explode(';',$val[$i]);
+      $url=trim($brr[0]);
+      $ref=trim($brr[1]);
+      $tit=trim($brr[2]);
+      $str=$str. '
+    <tr><td class="ql_indent">
+            <a href="'.$url.'" title="'.$tit.'" target="_blank">'.$ref.'</a></td>
+        <td class="ql_indent">
+            <small>('.$url.')</small></td></tr>';
+      endfor;
+   $str=$str.'
+</table>';
+   return $str;
+   }
+#
+#----------------------------------------- Frontend
+public static function print_quicklinks() {
+   #   Displays the defined Quicklinks groups, side-by-side as a html unordered list.
+   #   The links of a group pop up when crossing over with the mouse.
+   #   used functions:
+   #      self::get_linklists()
+   #      self::get_quicklinks($links)
+   #
+   $grplinks=self::get_linklists();
+   echo self::get_quicklinks($grplinks);
    }
 public static function get_linklists() {
    #   Returns all groups of internal and external Quicklinks as a numbered
@@ -653,11 +730,12 @@ public static function get_linklists() {
       endfor;
    return $grplinks;
    }
-public static function be_show_quicklinks($links) {
-   #   Returns a html code for printing a group of Quicklinks (used in backend).
-   #   $links           numbered array of Quicklinks belonging to one group
-   #                    (numbering starting at 1), each array element is
-   #                    an associative array of the following form:
+public static function get_internal_linklists() {
+   #   Returns all groups of Quicklinks constructed by a special module
+   #   (based on Redaxo linklist variable). They are selected from
+   #   table 'rex_article_slice' as a numbered array (numbering starting at 1).
+   #   Each group is represented as a numbered array (numbering starting at 1).
+   #   Each Quicklink consists of an associative array with these keys and values:
    #     ['group_nr']   group number according to slice priority
    #                    number in the Quicklinks article
    #     ['group_name'] group identifier
@@ -665,26 +743,60 @@ public static function be_show_quicklinks($links) {
    #     ['url']        URL of an external link
    #     ['ref']        link text of an external link
    #     ['title']      title text of an external link
+   #   used functions:
+   #      self::get_internal_links($slice)
    #
-   $grp=$links[1]['group_name'];
-   $gnr=$links[1]['group_nr'];
-   $str='<div>Quicklinks-Gruppe '.$gnr.' &nbsp; <b>\''.$grp.'\'</b></div>
-<table>';
-   for($i=1;$i<=count($links);$i=$i+1):
-      $id =$links[$i]['article_id'];
-      $url=$links[$i]['url'];
-      $ref=$links[$i]['ref'];
-      $tit=$links[$i]['title'];
-      $tid=$id.':';
-      if($tid<0) $tid='';
-      $str=$str. '
-    <tr><td class="ql_indent_r" width="50">'.$tid.'</td>
-        <td class="ql_indent">
-           <a href="'.$url.'" title="'.$tit.'" target="_blank">'.$ref.'</a></td></tr>';
+   $sql=rex_sql::factory();
+   #
+   # --- Select the link list based Quicklinks module
+   $query='SELECT * FROM rex_module WHERE output LIKE \'%REX_LINKLIST[1]%quicklinks%\'';
+   $mod=$sql->getArray($query);
+   $mod_id=$mod[0]['id'];
+   #
+   # --- Select the Quicklinks from rex_article_slice (unordered)
+   $query='SELECT * FROM rex_article_slice WHERE module_id='.$mod_id;
+   $slic=$sql->getArray($query);
+   $links=array();
+   for($i=0;$i<count($slic);$i=$i+1):
+      $slicid=$slic[$i]['id'];
+      $slice=rex_article_slice::getArticleSliceById($slicid);
+      $links[$i+1]=self::get_internal_links($slice);
       endfor;
-   $str=$str.'
-</table>';
-   return $str;
+   return $links;
+   }
+public static function get_external_linklists() {
+   #   Returns all groups of external Quicklinks constructed by a special
+   #   module (based on Redaxo value variables). They are selected from database
+   #   table 'rex_article_slice'. Each group is represented as a numbered array
+   #   of Quicklinks (numbering starting at 1). Each Quicklink consists of an
+   #   associative array with these keys and values:
+   #     ['group_nr']   group number according to slice priority
+   #                    number in the Quicklinks article
+   #     ['group_name'] group identifier
+   #     ['article_id'] ='-1'
+   #     ['url']        URL of an external link
+   #     ['ref']        link text of an external link
+   #     ['title']      title text of an external link
+   #   used functions:
+   #      self::get_external_links($slice)
+   #
+   $sql=rex_sql::factory();
+   #
+   # --- Select the value based Quicklinks module
+   $query='SELECT * FROM rex_module WHERE output LIKE \'%REX_VALUE[10]%quicklinks%\'';
+   $mod=$sql->getArray($query);
+   $mod_id=$mod[0]['id'];
+   #
+   # --- Select the Quicklinks from rex_article_slice (unordered)
+   $query='SELECT * FROM rex_article_slice WHERE module_id='.$mod_id;
+   $slic=$sql->getArray($query);
+   $links=array();
+   for($i=0;$i<count($slic);$i=$i+1):
+      $slicid=$slic[$i]['id'];
+      $slice=rex_article_slice::getArticleSliceById($slicid);
+      $links[$i+1]=self::get_external_links($slice);
+      endfor;
+   return $links;
    }
 public static function get_quicklinks($grplinks) {
    #   Returns the HTML code of the Quicklinks as side-by-side Quicklinks groups.
@@ -748,16 +860,6 @@ public static function get_quicklinks($grplinks) {
 </ul>
 ';
    return $str;
-   }
-public static function print_quicklinks() {
-   #   Displays the defined Quicklinks groups, side-by-side as a html unordered list.
-   #   The links of a group pop up when crossing over with the mouse.
-   #   used functions:
-   #      self::get_linklists()
-   #      self::get_quicklinks($links)
-   #
-   $grplinks=self::get_linklists();
-   echo self::get_quicklinks($grplinks);
    }
 }
 ?>
