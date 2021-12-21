@@ -1,4 +1,13 @@
 # quicklinks
+<h4>Version 2.1.2</h4>
+<ul>
+    <li>Der Programmcode ist überarbeitet. Dadurch sind die Codes der
+        Modul-Ausgabeteile verkürzt.</li>
+    <li>Das Stylesheet ist überarbeitet. U.a. beträgt die Schriftgröße
+        der Quicklinks-Zeilen jetzt tatsächlich 80% der Schriftgröße der
+        Quicklinks-Gruppe. Außerdem wird das Stylesheet bereits bei der
+        (Re-)Installation erzeugt bzw. überschrieben.</li>
+</ul>
 <h4>Version 2.1.1</h4>
 <ul>
     <li>Lesen und Setzen der Konfigurationsdaten funktioniert jetzt auch

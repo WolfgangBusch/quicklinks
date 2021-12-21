@@ -1,11 +1,12 @@
-package: quicklinks
-version: '2.1.1'
-author: 'Wolfgang Busch'
+package:  quicklinks
+version:  '2.1.2'
+author:   Wolfgang Busch
 supportpage: redaxo.org/forum/
 
 page:
     title: 'translate:quicklinks'
-    perm: quicklinks[]
+    perm:  admin[]
+    icon:  rex-icon fa-reorder
     subpages:
         introduction: { title: 'translate:introduction' }
         description:  { title: 'translate:description' }
