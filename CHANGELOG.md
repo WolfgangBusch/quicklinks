@@ -1,4 +1,29 @@
 # quicklinks
+<h4>Version 2.2</h4>
+    <li>Jetzt werden alle Blöcke der Quicklinks-Gruppen in einem einzigen
+        Artikel definiert. Die Reihenfolge der Gruppen (von links nach
+        rechts) ergibt sich aus der Reihenfolge der Blöcke in diesem
+        Artikel. Bisher wurde jede Quicklinks-Gruppe als einzelner Block
+        in je einem eigenen Artikeln angelegt, sodass für alle Gruppen
+        zusammen eine eigene Kategorie mit entsprechenden Artikeln nötig
+        war. - Bestehende Quicklinks-Gruppen müssen entsprechend neu
+        angelegt werden!!!</li>
+    <li>Auf Desktop-Displays wird die Leiste der nebeneinander liegenden
+        Quicklinks-Gruppen nicht mehr umgebrochen. Außerdem werden auf
+        Desktop-Displays bei fester Breite der Quicklinks-Gruppen die
+        Inhalte der PopUp-Zeilen nicht mehr rechts abgeschnitten.</li>
+    <li>Auf Smartphone-Displays sind die Quicklinks jetzt normalerweise
+        ausgeblendet, können aber über einen Schalter eingeblendet (und
+        wieder ausgeblendet) werden (responsives Design).</li>
+    <li>Für die Hintergrundfarbe der PopUp-Menüs kann jetzt auch eine
+        Transparenz konfiguriert werden. Sie wird daher - wie auch alle
+        anderen Konfigurationsfarben - im RGBA-Format abgelegt.</li>
+    <li>Die Stylesheet-Datei wird nicht mehr in zwei Ordnern abgelegt,
+        sondern nur noch in rex_path::addonAssets('quicklinks').</li>
+    <li>Konstanten werden nicht mehr per 'define(...)' vereinbart,
+        sondern als Klassen-Konstanten definiert.</li>
+<ul>
+</ul>
 <h4>Version 2.1.2</h4>
 <ul>
     <li>Der Programmcode ist überarbeitet. Dadurch sind die Codes der
