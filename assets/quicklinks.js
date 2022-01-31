@@ -1,10 +1,10 @@
-/**
+/*
  * Quicklinks AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Juli 2018
+ * @version Januar 2022
  */
-/*   P o p u p   M e n u s    f o r    Q u i c k l i n k s   */
+/*   P o p u p    M e n u e s    f u e r    Q u i c k l i n k s   */
 var pop='pop'; var box='box';
 var delayclean;
 function clean(anz) {
@@ -68,7 +68,7 @@ function quickStdStyle(id) {
    }
 function quickNewStyle(id) {
    /* Aenderung der Hintergrundfarbe einer <li>-Box,
-      und zwar auf die Farbe der Popup-Menues
+      und zwar auf die Farbe der PopUp-Menues
       id = 1 / 2 / 3 / ...: Nummer der <li>-Box,
       deren Hintergrundfarbe veraendert werden soll
       benutzte function: getBgColor(idName);
@@ -76,4 +76,18 @@ function quickNewStyle(id) {
    var bgColor = getBgColor(pop+'1');
    var idName = box + id;
    document.getElementById(idName).style.backgroundColor=bgColor;
+   }
+/*   S c h a l t e r    z u m    A n z e i g e n / V e r b e r g e n   */
+/*   des Quicklinks-Containers id="ql"                                 */
+function ql_show_hide(ql,m_icon,x_icon) {
+   var display=document.getElementById(ql).style.display;
+   if(display=='' || display=='none') {
+     document.getElementById(ql).style.display='block';
+     document.getElementById(x_icon).style.display='block';
+     document.getElementById(m_icon).style.display='none';
+     } else {
+     document.getElementById(ql).style.display='none';
+     document.getElementById(x_icon).style.display='none';
+     document.getElementById(m_icon).style.display='block';
+     }
    }
