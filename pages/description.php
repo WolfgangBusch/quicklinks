@@ -1,38 +1,37 @@
 <?php
-/**
+/*
  * Quicklinks AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Dezember 2021
+ * @version Januar 2022
  */
 #
 # --- Beschreibung
 echo '
 <div><b>Erzeugung der Quicklinks:</b></div>
-<div class="ql_indent">
-Das AddOn stellt zwei Module zur Verfügung, mit denen jeweils eine Gruppe
-von Linkzeilen (&quot;Quicklinks-Gruppe&quot;) erzeugt werden kann. Der
-eine Modul definiert eine Gruppe von Links auf Redaxo-Artikel (interne
-Links), der andere eine Liste externer Links.<br/>
-Eine Quicklinks-Gruppe wird dann durch einen Artikel gebildet, der nur
-genau einen der entsprechenden Blöcke enthält. Der Artikel kann
-<code>offline</code> bleiben, da er keine Frontend-Ausgaben macht.<br/>
-Sinnvollerweise richtet man für für die Quicklinks-Gruppen eine eigene
-Kategorie ein. Die Reihenfolge der Gruppen (von links nach rechts)
-ergibt sich aus der Reihenfolge der Artikel in der Kategorie.</div>
+
+<div>Das AddOn stellt zwei Module zur Erzeugung jeweils einer
+Gruppe von Linkzeilen ("Quicklinks-Gruppe") zur Verfügung.
+Der eine Modul definiert eine Liste von internen Links (auf
+Redaxo-Artikel), der andere eine Gruppe externer Links.<br/>
+An passender Stelle wird ein Artikel angelegt. Dessen Blöcke
+aus den oben genannten Modulen bilden die Quicklinks-Gruppen.
+Die Reihenfolge der Blöcke im Artikel bestimmt die Reihenfolge
+der Darstellung der Quicklinks-Gruppen. Der Artikel kann
+<i>offline</i> bleiben, da er keine Frontend-Ausgaben macht.</div>
 
 <div><br/><b>Anzeige der Quicklinks:</b></div>
-<div class="ql_indent">
-Die Quicklinks-Gruppen werden durch den Aufruf der PHP-Funktion
-<code>quicklinks::print_quicklinks()</code> angezeigt. Dieser
-Aufruf erfolgt sinnvollerweise im Seitentemplate.</div>
+
+<div>Die Quicklinks-Gruppen werden durch den Aufruf der
+PHP-Funktion <code>quicklinks::print_quicklinks()</code>
+angezeigt. Dieser Aufruf erfolgt sinnvollerweise im
+Seitentemplate.</div>
 
 <div><br/><b>Konfigurierbare Styles:</b></div>
-<ul>
-    <li>Breite der Gruppen und Linkzeilen</li>
-    <li>Textgröße der Gruppen (die der Linkzeilen ist 20% kleiner)</li>
-    <li>Hintergrundfarbe, Textfarbe und Randfarbe der Gruppen</li>
-    <li>Hintergrundfarbe und Textfarbe der Linkzeilen</li>
-</ul>
+
+<div>- Breite der Gruppen und Linkzeilen<br/>
+- Textgröße der Gruppen (die der Linkzeilen ist 20% kleiner)<br/>
+- Hintergrundfarbe, Textfarbe und Randfarbe der Gruppen<br/>
+- Hintergrundfarbe und Textfarbe der Linkzeilen</div><br/>
 ';
 ?>
