@@ -3,13 +3,14 @@
  * Quicklinks AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Januar 2022
+ * @version Dezember 2024
  */
 #
 class quicklinks {
 #
 #----------------------------------------- Inhaltsuebersicht
 #   Boot
+#      quicklinks_groups_article()
 #      set_class_variables()
 #   Konfiguration
 #      get_config_keys()
@@ -43,31 +44,70 @@ const icon_3points    ='icon_3points';   // Icon Id 'show Quicklinks'
 const icon_cross      ='icon_cross';     // Icon Id 'hide Quicklinks'
 public static $slices =array();          // array of slices of the Quicklinks groups
 #
-public static function set_class_variables() {
+public static function quicklinks_groups_article() {
+   #   Returning the articles containing internal Quicklinks groups.
+   #   Exactly one such article should be returned. And this article should
+   #   contain the external Quicklinks groups, too.
+   #
+   $sql=rex_sql::factory();
+   #
+   # --- Select the internal Quicklinks from rex_article_slice (unordered)
+   #     internal Quicklinks module Id
+   $query='SELECT * FROM rex_module WHERE output LIKE \'%quicklinks::show_internal_quicklinks%\'';
+   $modint=$sql->getArray($query);
+   $modint_id=$modint[0]['id'];
+   #     internal Quicklinks article Id
+   $query='SELECT * FROM rex_article_slice WHERE module_id='.$modint_id.' ORDER BY priority';
+   $slicint=$sql->getArray($query);
+   $aid=array();
+   $m=0;
+   for($i=0;$i<count($slicint);$i=$i+1):
+      $id=$slicint[$i]['article_id'];
+      $vorhanden=FALSE;
+      for($k=1;$k<=$m;$k=$k+1)
+         if($aid[$k]==$id):
+           $vorhanden=TRUE;
+           break;
+           endif;
+      if(!$vorhanden):
+        $m=$m+1;
+        $aid[$m]=$id;
+        endif;
+      endfor;
+   return $aid;
+   }
+public static function set_class_variables($artid=0) {
    #   Setting the class variables.
    #      self::$slices:   Numbered array of parameters of Quicklinks slices
    #                       (numbering starting at 1). Each slice is represented
    #                       as an associate array with these keys and values:
    #                          ['id']   slice Id
    #                          ['typ']  type, values = 'intern' or  'extern'
+   #   $artid           Id of the article containing the Quicklinks groups
+   #                    =0: find the first article containing the groups
+   #   benutzte functions:
+   #      self::quicklinks_groups_article()
    #
+   $art_id=$artid;
+   if($art_id<=0)
+     $art_id=self::quicklinks_groups_article()[1];
    $sql=rex_sql::factory();
    #
    # --- Select the internal Quicklinks from rex_article_slice (unordered)
-   $query='SELECT * FROM rex_module WHERE output LIKE \'%REX_LINKLIST[1]%quicklinks%\'';
+   $query='SELECT * FROM rex_module WHERE output LIKE \'%show_internal_quicklinks%\'';
    $modint=$sql->getArray($query);
    $modint_id=$modint[0]['id'];
-   $query='SELECT * FROM rex_article_slice WHERE module_id='.$modint_id.' ORDER BY priority';
+   $query='SELECT * FROM rex_article_slice WHERE module_id='.$modint_id.' AND article_id='.$art_id.' ORDER BY priority';
    $slicint=$sql->getArray($query);
    #
    # --- Select the external Quicklinks from rex_article_slice (unordered)
-   $query='SELECT * FROM rex_module WHERE output LIKE \'%REX_VALUE[10]%quicklinks%\'';
+   $query='SELECT * FROM rex_module WHERE output LIKE \'%show_external_quicklinks%\'';
    $modext=$sql->getArray($query);
    $modext_id=$modext[0]['id'];
-   $query='SELECT * FROM rex_article_slice WHERE module_id='.$modext_id.' ORDER BY priority';
+   $query='SELECT * FROM rex_article_slice WHERE module_id='.$modext_id.' AND article_id='.$art_id.' ORDER BY priority';
    $slicext=$sql->getArray($query);
    #
-   # --- Quicklinks slices (Ids and types)
+   # --- Quicklinks slices (Ids and types, ordered)
    $sid=array();
    for($i=0;$i<count($slicint);$i=$i+1):
       $prio=$slicint[$i]['priority'];
@@ -93,7 +133,7 @@ public static function get_config_keys() {
    return array(
       'width',        // width of the Quicklink cell (number of pixels)
       'size',         // size of the Quicklink link text (number of pixels)
-      'radius',       // border radius of the Quicklinks cell (number of pixels)
+      'radius',       // border radius of the Quicklink cell (number of pixels)
       'quick_backgr', // Quicklink cell background color: rgba(red,green,blue,1)
       'quick_border', // Quicklink cell border color:     rgba(red,green,blue,1)
       'quick_text',   // Quicklink cell text color:       rgba(red,green,blue,1)
@@ -218,7 +258,7 @@ public static function define_css($data) {
    $lineheight=strval($ql_linhei).'px';
    $ql_margt=$ql_linhei+4;   // line-height + padding-top  (ul.quicklink li)
    #
-   # --- data dependent on quicklinks group width
+   # --- data dependent on Quicklinks group width
    if($width>0):
      $ql_width=$width;
      $liwidth =$width.'px';
@@ -612,15 +652,15 @@ public static function print_form() {
         <td class="ql_indent ql_smaller">
             <input '.$str[8].' />
         <td colspan="3" class="ql_indent ql_smaller ql_nowrap">
-            (Hintergrund transparent/undurchsichtig: 0/1)</td></tr>';
+            (transparent [0] ... bis ... undurchsichtig [1])</td></tr>';
    #
    # --- Buttons
    $restit='auf Defaultwerte zurücksetzen und speichern';
    $html=$html.'
-    <tr><td class="ql_indent ql_nowrap"><br/>
+    <tr><td class="ql_indent ql_nowrap"><br>
             <button class="btn btn-save" type="submit" name="sendit" value="sendit"
                     title=" speichern "> speichern </button></td>
-        <td colspan="4" class="ql_indent ql_smaller"><br/>
+        <td colspan="4" class="ql_indent ql_smaller"><br>
             <button class="btn btn-update" type="submit" name="reset" value="reset"
                     title="'.$restit.'"> '.$restit.' </button></td></tr>';
    #
@@ -631,7 +671,7 @@ public static function print_form() {
    #
    # --- Notice on width
    $html=$html.'
-<div class="ql_indent"><br/><b>(*) Zur Breite der Quicklinks-Gruppen:</b><br/>
+<div class="ql_indent"><br><b>(*) Zur Breite der Quicklinks-Gruppen:</b><br>
 <div class="ql_indent">Ein <u>Parameterwert&gt;0 definiert eine einheitliche feste
 Breite</u> der Gruppen. Eine zu lange Gruppenbezeichnung kann daher ggf. abgeschnitten
 werden. Alternativ erzeugt der <u>Parameterwert 0 eine flexible Breite</u> der Gruppen,
@@ -714,7 +754,7 @@ public static function xmp_comments() {
     <li>Die externen Links sind real und werden in einem neuen Browserfenster angezeigt.</li>
 </ul>
 <div>Die äußere Form entspricht der gewählten Konfiguration '.
-'(Breite der Quicklinks-Gruppen: '.$width.' Pixel). '.$zus.'<br/>&nbsp;</div>';
+'(Breite der Quicklinks-Gruppen: '.$width.' Pixel). '.$zus.'<br>&nbsp;</div>';
    return $str;
    }
 public static function show_internal_quicklinks($grp,$list) {
@@ -725,26 +765,37 @@ public static function show_internal_quicklinks($grp,$list) {
    #
    if(empty($grp)) return '
 <p class="ql_error">Gruppenname ist leer!</p>';
+   #
    $str='
 <div>Quicklinks-Gruppe <b>"'.trim($grp).'"</b></div>
 <table>';
    #
    # --- link list
-   $links=explode(',',$list);
-   for($i=0;$i<count($links);$i=$i+1):
-      $art_id=$links[$i];
-      $url=rex_getUrl($art_id);
-      $art=rex_article::get($art_id);
-      $name=$art->getName();
-      $ref=$name;
-      $tit=$name;
-      $str=$str.'
+   if(!empty($list)):
+     $links=explode(',',$list);
+     for($i=0;$i<count($links);$i=$i+1):
+        $art_id=$links[$i];
+        $url=rex_getUrl($art_id);
+        $art=rex_article::get($art_id);
+        $name=$art->getName();
+        $ref=$name;
+        $tit=$name;
+        $nurl='';
+        if(!empty($url)) $nurl='('.$url.')';
+        $str=$str.'
     <tr><td class="ql_indent">
             <a href="'.$url.'" title="'.$tit.'" target="_blank">
            '.$ref.'</a></td>
         <td class="ql_indent">
-            <small>('.$url.')</small></td></tr>';
-      endfor;
+            <small>'.$nurl.'</small></td></tr>';
+        endfor;
+     else:
+     $str=$str.'
+    <tr><td class="ql_indent">
+            ---</td>
+        <td class="ql_indent">
+            <small>(Gruppe ist leer)</small></td></tr>';
+     endif;
    $str=$str.'
 </table>';
    return $str;
@@ -756,25 +807,32 @@ public static function show_external_quicklinks($grp,$val) {
    #
    if(empty($grp)) return '
 <p class="ql_error">Gruppenname ist leer!</p>';
+   #
    $str='
 <div>Quicklinks-Gruppe <b>"'.trim($grp).'"</b></div>
 <table>';
    #
    # --- link list
+   $list='';
    for($i=1;$i<=10;$i=$i+1):
-      if(empty($val[$i])) continue;
       $arr=explode(';',$val[$i]);
       $url=trim($arr[0]);
       $ref=trim($arr[1]);
       $tit=trim($arr[2]);
-      $str=$str.'
+      if(empty($url) and empty($ref) and empty($tit)) continue;
+      $list=$list.'
     <tr><td class="ql_indent">
             <a href="'.$url.'" title="'.$tit.'" target="_blank">
-           '.$ref.'</a></td>
+            '.$ref.'</a></td>
         <td class="ql_indent">
             <small>('.$url.')</small></td></tr>';
       endfor;
-   $str=$str.'
+   if(empty($list)) $list='
+    <tr><td class="ql_indent">
+            ---</td>
+        <td class="ql_indent">
+            <small>(Gruppe ist leer)</small></td></tr>';
+   $str=$str.$list.'
 </table>';
    return $str;
    }
@@ -798,19 +856,24 @@ public static function get_internal_links($slice_id) {
    $grp_nr  =$slice->getValue('priority');
    $linklist=$slice->getLinkList(1);
    $grplink=array();
-   if(empty($linklist)) return $grplink;
    #
-   $arr=explode(',',$linklist);
-   for($k=0;$k<count($arr);$k=$k+1):
-      $aid=$arr[$k];
-      $name=rex_article::get($aid)->getName();
-      $grplink[$k+1]['group_nr']  =$grp_nr;
-      $grplink[$k+1]['group_name']=$grp_name;
-      $grplink[$k+1]['article_id']=$aid;
-      $grplink[$k+1]['url']       =rex_getUrl($aid);
-      $grplink[$k+1]['ref']       =$name;
-      $grplink[$k+1]['title']     =$name;
-      endfor;
+   if(!empty($linklist)):
+     $arr=explode(',',$linklist);
+     for($k=0;$k<count($arr);$k=$k+1):
+        $aid=$arr[$k];
+        $name=rex_article::get($aid)->getName();
+        $grplink[$k+1]['group_nr']  =$grp_nr;
+        $grplink[$k+1]['group_name']=$grp_name;
+        $grplink[$k+1]['article_id']=$aid;
+        $grplink[$k+1]['url']       =rex_getUrl($aid);
+        $grplink[$k+1]['ref']       =$name;
+        $grplink[$k+1]['title']     =$name;
+        endfor;
+     else:
+     $grplink[1]['group_nr']  =$grp_nr;
+     $grplink[1]['group_name']=$grp_name;
+     $grplink[1]['article_id']=0;
+     endif;
    return $grplink;
    }
 public static function get_external_links($slice_id) {
@@ -842,6 +905,11 @@ public static function get_external_links($slice_id) {
       $grplink[$k]['ref']       =trim($arr[1]);
       $grplink[$k]['title']     =trim($arr[2]);
       endfor;
+   if(count($grplink)<=0):
+     $grplink[1]['group_nr']  =$grp_nr;
+     $grplink[1]['group_name']=$grp_name;
+     $grplink[1]['article_id']='-1';
+     endif;
    return $grplink;
    }
 public static function get_linklists() {
@@ -935,16 +1003,19 @@ public static function get_quicklinks($grplinks) {
       # --- Lines of the PopUp menus
       $text='';
       for($k=1;$k<=count($grplink);$k=$k+1):
-         $aid=$grplink[$k]['article_id'];
-         $tit=$grplink[$k]['title'];
          $url=$grplink[$k]['url'];
          $ref=$grplink[$k]['ref'];
-         $tar='';
-         if(substr($url,0,4)=='http') $tar=' target="_blank"';
-         $text=$text.'
-            <a href="'.$url.'" title="'.$tit.'"'.$tar.'>'.$ref.'</a><br/>';
+         $tit=$grplink[$k]['title'];
+         if(!empty($url) and !empty($ref)):
+           $tar='';
+           if(substr($url,0,4)=='http') $tar=' target="_blank"';
+           $text=$text.'
+            <a href="'.$url.'" title="'.$tit.'"'.$tar.'>'.$ref.'</a><br>';
+           else:
+           $text='&nbsp;<br>';
+           endif;
          endfor;
-      $text=substr($text,0,strlen($text)-5);
+      $text=substr($text,0,strlen($text)-4);
       #
       # --- Adding of headline and lines
       $li[$i]='
