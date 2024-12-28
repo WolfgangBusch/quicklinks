@@ -1,4 +1,11 @@
 # quicklinks
+<h4>Version 2.3</h4>
+    <li>Bisher war es nicht möglich, eine Quicklinks-Gruppe anzulegen
+        und dazu keine Linkzeile zu definieren. In solchen Fällen
+        war der Artikel mit den Quicklinks-Gruppen aufgrund eines
+        Fehlers nicht mehr editierbar. Jetzt sind auch solche leeren
+        Quicklinks-Gruppen möglich.</li>
+</ul>
 <h4>Version 2.2</h4>
     <li>Jetzt werden alle Blöcke der Quicklinks-Gruppen in einem einzigen
         Artikel definiert. Die Reihenfolge der Gruppen (von links nach

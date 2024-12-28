@@ -1,7 +1,7 @@
 package:  quicklinks
-version:  '2.2'
+version:  '2.3'
 author:   Wolfgang Busch
-supportpage: redaxo.org/forum/
+supportpage: redaxo.org/support/community/
 
 page:
     title: 'translate:quicklinks'
