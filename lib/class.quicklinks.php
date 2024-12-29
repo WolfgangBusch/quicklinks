@@ -89,8 +89,11 @@ public static function set_class_variables($artid=0) {
    #      self::quicklinks_groups_article()
    #
    $art_id=$artid;
-   if($art_id<=0)
-     $art_id=self::quicklinks_groups_article()[1];
+   if($art_id<=0):
+     $aid=self::quicklinks_groups_article();
+     if(count($aid)<=0) return;
+     $art_id=$aid[1];
+     endif;
    $sql=rex_sql::factory();
    #
    # --- Select the internal Quicklinks from rex_article_slice (unordered)
